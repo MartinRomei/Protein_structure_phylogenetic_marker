@@ -1,0 +1,50 @@
+Metabolism	C	Energy	Energy production and conversion 
+Metabolism	CB	Photosynthesis	Photosynthesis
+General	HA	Small molecule binding	Small molecule binding
+General	HB	Ion binding	Ion binding
+General	HC	Lipid/membrane binding	Lipid/membrane binding
+General	HE	Ligand binding	Ligand binding
+General	R	General	General or several functions
+General	RD	Protein interaction	Protein-protein interaction (dimerization domains)
+General	ST	Structural protein	Structural protein
+Information	B	Chromatin structure	Chromatin structure and dynamics
+Information	J	Translation	Translation, ribosomes, ribosome biogenesis; tRNA metabolism   
+Information	K	Transcription	Transcription          
+Information	L	DNA replication/repair	DNA replication, recombination, repair       
+Information	LB	RNA processing	RNA-binding, RNA procecsing, dynamics
+Information	Y	Nuclear structure	Nuclear structure
+Metabolism	CA	E- transfer	Electron transfer/transport   
+Metabolism	E	Amino acids m/tr	Amino acid transport and metabolism
+Metabolism	EA	Nitrogen m/tr	Nitrogen metabolism
+Metabolism	F	Nucleotide m/tr	Nucleotide transport and metabolism 
+Metabolism	G	Carbohydrate m/tr	Carbohydrate transport and metabolism 
+Metabolism	GA	Polysaccharide m/tr	Polysaccharide metabolism   
+Metabolism	GB	Storage	Lipid/polysaccharide storage
+Metabolism	H	Coenzyme m/tr	Coenzyme metabolism   
+Metabolism	I	Lipid m/tr	Lipid transport and metabolism    
+Metabolism	M	Cell envelope m/tr	Cell envelope biogenesis, outer membrane
+Metabolism	Q	Secondary metabolism	Secondary metabolites biosynthesis, transport and catabolism
+Metabolism	RA	Redox	Oxidation/Reduction   
+Metabolism	RB	Transferases	Transferases     
+Metabolism	RC	Other enzymes	Other enzymes    
+Other	S	Unknown function	Function unknown    
+Other	SA	Viral proteins	Viral proteins    
+Processes_EC	MA	Cell adhesion	Cell adhesion
+Processes_EC	RE	Immune response	Immune response    
+Processes_EC	RG	Blood clotting	Blood clotting
+Processes_EC	SB	Toxins/defense	Toxins and defense enzymes  
+Processes_IC	D	Cell cycle, Apoptosis	Cell devision and chromsome partitioning, cell cycle
+Processes_IC	IA	Phospholipid m/tr	Phospholipid metabolism    
+Processes_IC	N	Cell motility	Cell motility, cytoskeleton
+Processes_IC	NA	Trafficking/secretion	Intracellular trafficking and secretion
+Processes_IC	O	Protein modification	Posttranslational modification, protein turnover, chaperones      
+Processes_IC	OA	Proteases	Proteases, peptidases and their inhibitors
+Processes_IC	P	Ion m/tr	Inorganic ion transport and metabolism
+Processes_IC	RF	Transport	Transport     
+Regulation	A	RNA binding, m/tr	RNA processing and modification
+Regulation	LA	DNA-binding	DNA-binding (transcription factors)        
+Regulation	OB	Kinases/phosphatases	Kinases and phosphatases and inhibitors
+Regulation	T	Signal transduction	Signal transduction  
+Regulation	TA	Other regulatory function	Other regulatory function
+Regulation	HD	Receptor activity	Receptor activity 
+N_A	NONA	not annotated	not annotated

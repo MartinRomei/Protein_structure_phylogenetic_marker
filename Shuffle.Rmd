@@ -1,0 +1,160 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+ # Paquets à charger
+
+```{r}
+library("ade4") #dist.binary
+library("DendSer") #DendSer
+library("ape") #read.tree
+#library("heatmaply")
+
+library("MASS") #fitdistr
+
+library("phangorn") #read.PhyDat et RI
+
+```
+
+# fichiers et lectures
+```{r}
+#Sera lu plus tard
+nomFi_matrix="/Users/mathilde/2_PROJETS_EN_COURS/Martin_EvolFold/DATA/0_NosSelections/0_v2_210sp_ArcheesCelines_OK/data/matrice_fold_article_complet.txt"
+
+
+#Arbre biniare et ultrametrique pour dendser
+nomFi_arbre_binaire_ultra="/Users/mathilde/2_PROJETS_EN_COURS/Martin_EvolFold/DATA/0_NosSelections/0_v2_210sp_ArcheesCelines_OK/Analyses_Folds/arbre_ref_binary_ultrametric.nwk"
+arbre_binaire_ultra=read.tree(file=nomFi_arbre_binaire_ultra)
+stopifnot(is.ultrametric(arbre_binaire_ultra))
+stopifnot(is.binary(arbre_binaire_ultra))
+dendro=as.hclust(arbre_binaire_ultra) 
+
+
+#Arbre ultra pas binaire pour les RI
+nomFi_arbre_ultra="/Users/mathilde/2_PROJETS_EN_COURS/Martin_EvolFold/DATA/0_NosSelections/0_v2_210sp_ArcheesCelines_OK/Analyses_Folds/mesquite_article_RI_sansOutgroup_ultrametric_ordonne.nwk"
+arbre=read.tree(file=nomFi_arbre_ultra)
+stopifnot( is.ultrametric(arbre))
+
+
+#nomFi_RI="../data/RI_210_article_corr.txt"
+#nomFi_Taxo="/Users/mathilde/2_PROJETS_EN_COURS/Martin_EvolFold/DATA/0_NosSelections/0_v2_210sp_ArcheesCelines_OK/Taxonomie.csv"
+
+```
+
+
+# Calcul de la matrice sériée 
+ Seriation avec la phylogenie
+
+```{r}
+d=read.table(nomFi_matrix, header = T)
+
+#Il faut ordonner la matrice comme dendro 
+matrice=matrix(data = 0, nrow=nrow(d), ncol=ncol(d), dimnames=list(rownames(d), dendro$labels))
+i=1
+for(org in dendro$labels){
+  #print(org)
+ matrice[,i] =d[,colnames(d)==org]
+ i=i+1
+}
+
+#matrice de distance, hclust et seriation, heatmap
+dMat2 <- dist.binary(matrice, method = 7, diag = FALSE, upper = FALSE)
+TdMat2 <- dist.binary(t(as.matrix(matrice)), method = 7, diag = FALSE, upper = FALSE)
+
+#clustering hierarchique
+HC2 <- hclust(dMat2, method = "mcquitty", members=NULL)
+#THC2_clust <- hclust(TdMat2, method = "mcquitty", members=NULL)
+#write.nexus(as.phylo(THC2_clust), file="clustering.nex")
+
+
+#Seriation
+OrdSer1 <- DendSer(HC2,dMat2, cost = costARc)
+OrdSer2 <- DendSer(dendro,TdMat2, cost = costARc)
+
+
+
+#order ser
+datamatOrdered <- as.matrix(matrice[get_order(OrdSer1), get_order(OrdSer2)])
+```
+
+
+# Shuffle pour calcul des RI
+Shuffle des colonnes (especes),  chaque ligne est shufflé indépendemment
+```{r}
+
+resample=TRUE
+#Nombre d'iterations 
+niter=5
+
+  if(resample==TRUE){
+  nr=ncol(datamatOrdered)
+  
+  #Déclarations et initialisations
+  lesRIG2=data.frame(row.names =seq(niter),  RI=rep(0, niter), CI=rep(0, niter))
+  lesRI_fold2=data.frame(row.names =rownames(datamatOrdered))
+  for(iter in seq(niter)){
+    it=paste("it_", iter, sep="")
+    lesRI_fold2[[it]]=0
+    
+    #Shuffle
+    rand_datamat=datamatOrdered
+    for(i in seq(1:nrow(datamatOrdered))){
+      rand_datamat[i,]=datamatOrdered[i,sample.int(nr)]
+    }
+    colnames(rand_datamat)=colnames(datamatOrdered)
+    
+    #Pour verif, on peut afficher la heatmap
+  #  heatmap.2(rand_datamat,dendrogram='none',na.color="grey",  Rowv=FALSE, Colv=FALSE,trace='none', cexCol=0.1, cexRow=0.1, col=c("white", "blue"))  
+    
+    #Pour utiliser la fonction RI de phangorn, il faut un objet de type particulier
+    #Pour cela j'écris les caractères (0/1) au format fasta puis les relis avec la fonction read.phyDat
+    fi="tmp.txt"
+    lesSp=colnames(rand_datamat)
+    write("", file=fi, append=FALSE)
+    for(j in seq(ncol(rand_datamat))){
+      write(paste(">", lesSp[j], sep=""), file=fi, append=TRUE)
+      write(paste(rand_datamat[,j], sep="", collapse=""), file=fi, append=TRUE)
+    }
+    d_rand=read.phyDat(fi, format = "fasta", type = "USER", levels=c(0,1) )
+    
+    #Calculs des RI
+    # par fold
+    lesRI_fold2[[it]]=RI(arbre, d_rand, sitewise=TRUE)
+    leRI=RI(arbre, d_rand, sitewise=FALSE)
+    # général pour cette itération
+    lesRIG2[iter,]$RI=leRI
+    lesRIG2[iter,]$CI=CI(arbre, d_rand, sitewise=FALSE)
+  }
+  #Fichiers de sortie
+  #write.csv(lesRIG2, file="lesRIMoy_aleaParCol_chaqLigne.txt")
+  write.csv(lesRIG2, file="test.txt")
+  #write.csv(lesRI_fold2, file="lesRIParFold_aleaParCo_chaqLignel.txt")
+  write.csv(lesRI_fold2, file="test2.txt")
+}else{ 
+  #si on a déjà fait les tirages, on peut juste relire les fichiers
+  lesRIG2=read.csv(file="lesRIMoy_aleaParCol_chaqLigne.txt")
+  lesRI_fold2=read.csv(file="lesRIParFold_aleaParCo_chaqLignel.txt")
+}
+nb_esp_parFolds=rowSums(datamatOrdered)
+#print(summary(lesRIG2$RI))
+nn=fitdistr(lesRIG2$RI, "normal") #fi de la distrib normale
+hist(lesRIG2$RI,main= paste("distribution de", niter, " RI avec shuffle des colonne (espèces)"), prob=TRUE, sub=paste("mean:", nn$estimate[1], "sd",  nn$estimate[2]))
+curve(dnorm(x, mean=nn$estimate[1], sd=nn$estimate[2]), add=TRUE)
+
+
+hh=hist(as.matrix(lesRI_fold2), main="All RI of all folds")
+plot(nb_esp_parFolds, rowMeans(as.matrix(lesRI_fold2)), main=paste("RI moyen de chaque fold (avec", niter, " shuffle) vs le nombre de folds dans la ligne"))
+plot(nb_esp_parFolds, apply(as.matrix(lesRI_fold2),1, sd, na.rm = TRUE),  main=paste("SD des RI de chaque fold (avec ", niter, " shuffle) vs le nombre de folds dans la ligne"))
+
+print(paste("limite RI à 95% (environ, +2SD):", max(apply(as.matrix(lesRI_fold2),1, sd, na.rm = TRUE), na.rm=T)*2+max(rowMeans(as.matrix(lesRI_fold2)), na.rm=T)))
+print(paste("limite RI à 99% (environ, +3SD):", max(apply(as.matrix(lesRI_fold2),1, sd, na.rm = TRUE), na.rm=T)*3+max(rowMeans(as.matrix(lesRI_fold2)), na.rm=T)))
+
+
+#heatmap.2(as.matrix(lesRI_fold2),dendrogram='none',na.color="grey",  Rowv=FALSE, Colv=FALSE,trace='none', cexCol=0.1, cexRow=0.1)  
+
+```
+
+

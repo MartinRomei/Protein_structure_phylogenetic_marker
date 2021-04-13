@@ -1,0 +1,209 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Mar  8 13:44:27 2021
+
+@author: martin
+"""
+
+
+import os
+import re
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+#creation of 
+def dicogroupcrea(chiffre):
+    if chiffre==3:
+        dicogroupe_fold_pre={}
+        wd=os.getcwd()
+        os.chdir("/home/martin/Documents/Rstudio_cluster/data/etudefonctiongroupe")
+
+
+        #liste des groupe eukaryotes associe fold
+        file=open("listespe_groupe.tsv","r")
+        for i in file:
+            if i[0]=="3":
+                isplit=i.split("	")
+                dicogroupe_fold_pre[isplit[1]]=isplit[5]
+        
+        file.close()
+
+        #creation dico fold/groupe
+        dicogroupe_fold={}
+        for i in dicogroupe_fold_pre:
+            fold=re.compile("[a-z]\.[0-9]+")
+            result=fold.findall(dicogroupe_fold_pre[i])
+            dicogroupe_fold[i]=result
+        #dicogroupe_fold["nematods"]=["e.76","d.62","a.226","b.169"]
+    
+    else:
+        #modif pour modifier dicogroupe pour le deepsplit 2(facultatif)
+   
+        os.chdir("/home/martin/Documents/Rstudio_cluster/data")
+        file=open("listecluster2.txt","r")
+        listecluster=[]
+        for i in file:
+            isplit=i.split(" ")
+            listecluster=listecluster+isplit
+        file.close()   
+    
+        listegroupe=[1,2,8,4,24]
+        dicogroupe={}
+        for i in listegroupe:
+            dicogroupe[i]=[]
+    
+        file=open("RI_Matrix_nomcomplet_ord.txt","r")
+        f=file.readline()
+        f=file.readline()
+        #a=re.compile("\".+\"")
+        a=re.compile("[a-z]\.[0-9]+ ")
+        listefoldnom=[]
+        while f!="":
+            #print(f)
+            fsplit=f.split(" ")
+            result=fsplit[0][1:]
+            resultsplit=result.split(".")
+            fold=resultsplit[0]+"."+resultsplit[1]
+            listefoldnom.append(fold)
+            f=file.readline()
+    
+        file.close()
+
+
+        for i in range(len(listefoldnom)):
+            if int(listecluster[i]) in listegroupe:
+                dicogroupe[int(listecluster[i])].append(listefoldnom[i])
+        dicogroupe_fold=dicogroupe
+    return dicogroupe_fold
+
+
+dicogroupe_fold2=dicogroupcrea(2)
+
+dicogroupe_fold3=dicogroupcrea(3)
+
+
+#ajout des groupes manquant et supression des groupes en trop
+
+dicogroupe_fold2["photo"]=dicogroupe_fold3["photosynthetic3"]+dicogroupe_fold3["photosynthetic4"]
+
+dicogroupe_fold3["nematodes"]=["e.76","d.62","a.226","b.169"]
+
+
+dicogroupe_fold3.pop("photosynthetic3")
+dicogroupe_fold3.pop("photosynthetic4")
+dicogroupe_fold3.pop("photosynthetic5")
+dicogroupe_fold3.pop("photosynthetic6")
+dicogroupe_fold3.pop("photosynthetic7")
+
+#creation of euk_calde group
+listefold3=[]
+for i in dicogroupe_fold3:
+    for j in dicogroupe_fold3[i]:
+        listefold3.append(j)
+        
+dicogroupe_fold=dicogroupe_fold2
+dicogroupe_fold["euk_clade"]=listefold3
+
+#Creation of complete list of folds
+os.chdir("/home/martin/Documents/Rstudio_cluster/data")
+listeallfolds=[]
+file=open("matrixordered.txt","r")
+for i in file:
+    isplit=i.split(" ")
+    listeallfolds.append(isplit[0])
+file.close()
+listeallfolds=listeallfolds[1:]
+
+dicogroupe_fold["all"]=listeallfolds
+
+os.chdir("/home/martin/Documents/Rstudio_cluster/data/etudefonctiongroupe")
+dicofoncbig={}
+dicofoncsmall={}
+file=open("categorie_fonc.txt")
+for i in file:
+    isplit=i.split("	")
+    dicofoncbig[isplit[1]]=isplit[0]
+file.close()
+
+
+dicofold_fonc={}
+file=open("annotation_fonc_1.73.txt")
+for i in file:
+    isplit=i.split()
+    fonction=isplit[0]
+    fold=isplit[3].split(".")[0]+"."+isplit[3].split(".")[1]
+    if fold in dicofold_fonc:
+        dicofold_fonc[fold].append(fonction)
+    else:
+        dicofold_fonc[fold]=[fonction]
+
+dicofold_big={}
+for i in dicofold_fonc:
+    dicofold_big[i]=[]
+    for j in dicofold_fonc[i]:
+        dicofold_big[i].append(dicofoncbig[j])
+
+   
+dicofold_fonc_repart={}
+for i in dicofold_big:
+    denom=len(dicofold_big[i])
+    dicofold_fonc_repart[i]={}
+    for j in dicofold_big[i]:
+        if j in dicofold_fonc_repart[i]:
+            dicofold_fonc_repart[i][j]=dicofold_fonc_repart[i][j]+(1/denom)
+        else:
+            dicofold_fonc_repart[i][j]=1/denom
+        
+"""
+#caldul fonction pour tout les folds
+denom=len(dicofold_fonc_repart)
+repartglobale={}
+for i in dicofold_fonc_repart:
+    for j in dicofold_fonc_repart[i]:
+        if j in repartglobale:
+            repartglobale[j]=repartglobale[j]+(dicofold_fonc_repart[i][j]/denom)*100
+        else:
+            repartglobale[j]=(dicofold_fonc_repart[i][j]/denom)*100
+"""
+
+
+#selection du nombre de fold présent dans la fonction
+dicogroupe_nombre={}
+for i in dicogroupe_fold:
+    nombre=0
+    for j in dicogroupe_fold[i]:
+        nombre=nombre+1
+    dicogroupe_nombre[i]=nombre
+            
+#association des groupes avec les fonctions           
+
+dicogroupefold_fonc={}
+dicogroupefold_fonc_nbr={}
+for i in dicogroupe_fold:
+    dicogroupefold_fonc[i]={}
+    dicogroupefold_fonc_nbr[i]={}
+    for j in dicogroupe_fold[i]:
+        if j in dicofold_fonc_repart:
+            for k in dicofold_fonc_repart[j]:
+                if k in dicogroupefold_fonc[i]:
+                    dicogroupefold_fonc[i][k]=dicogroupefold_fonc[i][k]+dicofold_fonc_repart[j][k]
+                    dicogroupefold_fonc_nbr[i][k]=dicogroupefold_fonc_nbr[i][k]+1
+                else:
+                    dicogroupefold_fonc[i][k]=dicofold_fonc_repart[j][k]
+                    dicogroupefold_fonc_nbr[i][k]=1
+        else:
+            if "N_A" in dicogroupefold_fonc[i]:
+                dicogroupefold_fonc[i]["N_A"]=dicogroupefold_fonc[i]["N_A"]+1
+                dicogroupefold_fonc_nbr[i]["N_A"]=dicogroupefold_fonc_nbr[i]["N_A"]+1
+            else:
+                dicogroupefold_fonc[i]["N_A"]=1
+                dicogroupefold_fonc_nbr[i]["N_A"]=1
+
+
+dicogroupefold_fonc_pourc={}
+for i in dicogroupefold_fonc:
+    dicogroupefold_fonc_pourc[i]={}
+    for j in dicogroupefold_fonc[i]:
+        dicogroupefold_fonc_pourc[i][j]=(dicogroupefold_fonc[i][j]/dicogroupe_nombre[i])*100
