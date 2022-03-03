@@ -21,7 +21,7 @@ def dicogroupcrea(chiffre):
         os.chdir("/home/martin/Documents/Rstudio_cluster/data/etudefonctiongroupe")
 
 
-        #liste des groupe eukaryotes associe fold
+        #liste of eukaryotes groups to associate with function
         file=open("listespe_groupe.tsv","r")
         for i in file:
             if i[0]=="3":
@@ -30,7 +30,7 @@ def dicogroupcrea(chiffre):
         
         file.close()
 
-        #creation dico fold/groupe
+        #creation of a dico fold/groupe
         dicogroupe_fold={}
         for i in dicogroupe_fold_pre:
             fold=re.compile("[a-z]\.[0-9]+")
@@ -39,7 +39,7 @@ def dicogroupcrea(chiffre):
         #dicogroupe_fold["nematods"]=["e.76","d.62","a.226","b.169"]
     
     else:
-        #modif pour modifier dicogroupe pour le deepsplit 2(facultatif)
+        #modification of dicogroupe to use for deepsplit 2(facultative)
    
         os.chdir("/home/martin/Documents/Rstudio_cluster/data")
         file=open("listecluster2.txt","r")
@@ -84,7 +84,7 @@ dicogroupe_fold2=dicogroupcrea(2)
 dicogroupe_fold3=dicogroupcrea(3)
 
 
-#ajout des groupes manquant et supression des groupes en trop
+#add missing groups and remove groups 
 
 dicogroupe_fold2["photo"]=dicogroupe_fold3["photosynthetic3"]+dicogroupe_fold3["photosynthetic4"]
 
@@ -157,7 +157,7 @@ for i in dicofold_big:
             dicofold_fonc_repart[i][j]=1/denom
         
 """
-#caldul fonction pour tout les folds
+#function for all folds
 denom=len(dicofold_fonc_repart)
 repartglobale={}
 for i in dicofold_fonc_repart:
@@ -169,7 +169,7 @@ for i in dicofold_fonc_repart:
 """
 
 
-#selection du nombre de fold présent dans la fonction
+select the number of folds in a function
 dicogroupe_nombre={}
 for i in dicogroupe_fold:
     nombre=0
@@ -177,7 +177,7 @@ for i in dicogroupe_fold:
         nombre=nombre+1
     dicogroupe_nombre[i]=nombre
             
-#association des groupes avec les fonctions           
+#association groups with functions    
 
 dicogroupefold_fonc={}
 dicogroupefold_fonc_nbr={}
