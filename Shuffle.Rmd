@@ -5,7 +5,7 @@ output:
     df_print: paged
 ---
 
- # Paquets à charger
+ # Packqge to charge
 
 ```{r}
 library("ade4") #dist.binary
@@ -19,13 +19,13 @@ library("phangorn") #read.PhyDat et RI
 
 ```
 
-# fichiers et lectures
+# files and reading of files
 ```{r}
-#Sera lu plus tard
+#will be read later
 nomFi_matrix="/Users/mathilde/2_PROJETS_EN_COURS/Martin_EvolFold/DATA/0_NosSelections/0_v2_210sp_ArcheesCelines_OK/data/matrice_fold_article_complet.txt"
 
 
-#Arbre biniare et ultrametrique pour dendser
+#binary and ultrametric tree for dendser
 nomFi_arbre_binaire_ultra="/Users/mathilde/2_PROJETS_EN_COURS/Martin_EvolFold/DATA/0_NosSelections/0_v2_210sp_ArcheesCelines_OK/Analyses_Folds/arbre_ref_binary_ultrametric.nwk"
 arbre_binaire_ultra=read.tree(file=nomFi_arbre_binaire_ultra)
 stopifnot(is.ultrametric(arbre_binaire_ultra))
@@ -33,7 +33,7 @@ stopifnot(is.binary(arbre_binaire_ultra))
 dendro=as.hclust(arbre_binaire_ultra) 
 
 
-#Arbre ultra pas binaire pour les RI
+#non binary ultrametric tree for Ri calculation
 nomFi_arbre_ultra="/Users/mathilde/2_PROJETS_EN_COURS/Martin_EvolFold/DATA/0_NosSelections/0_v2_210sp_ArcheesCelines_OK/Analyses_Folds/mesquite_article_RI_sansOutgroup_ultrametric_ordonne.nwk"
 arbre=read.tree(file=nomFi_arbre_ultra)
 stopifnot( is.ultrametric(arbre))
@@ -45,7 +45,7 @@ stopifnot( is.ultrametric(arbre))
 ```
 
 
-# Calcul de la matrice sériée 
+# Calculation of the seriated matrix
  Seriation avec la phylogenie
 
 ```{r}
@@ -81,7 +81,7 @@ datamatOrdered <- as.matrix(matrice[get_order(OrdSer1), get_order(OrdSer2)])
 ```
 
 
-# Shuffle pour calcul des RI
+# Shuffle to calculate RI
 Shuffle des colonnes (especes),  chaque ligne est shufflé indépendemment
 ```{r}
 
@@ -92,7 +92,7 @@ niter=5
   if(resample==TRUE){
   nr=ncol(datamatOrdered)
   
-  #Déclarations et initialisations
+  #Declarations and initializations
   lesRIG2=data.frame(row.names =seq(niter),  RI=rep(0, niter), CI=rep(0, niter))
   lesRI_fold2=data.frame(row.names =rownames(datamatOrdered))
   for(iter in seq(niter)){
@@ -106,7 +106,7 @@ niter=5
     }
     colnames(rand_datamat)=colnames(datamatOrdered)
     
-    #Pour verif, on peut afficher la heatmap
+    #verification of heatmap
   #  heatmap.2(rand_datamat,dendrogram='none',na.color="grey",  Rowv=FALSE, Colv=FALSE,trace='none', cexCol=0.1, cexRow=0.1, col=c("white", "blue"))  
     
     #Pour utiliser la fonction RI de phangorn, il faut un objet de type particulier
@@ -120,21 +120,21 @@ niter=5
     }
     d_rand=read.phyDat(fi, format = "fasta", type = "USER", levels=c(0,1) )
     
-    #Calculs des RI
-    # par fold
+    #RI calculation
+    # by folds
     lesRI_fold2[[it]]=RI(arbre, d_rand, sitewise=TRUE)
     leRI=RI(arbre, d_rand, sitewise=FALSE)
-    # général pour cette itération
+    #Global RI
     lesRIG2[iter,]$RI=leRI
     lesRIG2[iter,]$CI=CI(arbre, d_rand, sitewise=FALSE)
   }
-  #Fichiers de sortie
+  #output files
   #write.csv(lesRIG2, file="lesRIMoy_aleaParCol_chaqLigne.txt")
   write.csv(lesRIG2, file="test.txt")
   #write.csv(lesRI_fold2, file="lesRIParFold_aleaParCo_chaqLignel.txt")
   write.csv(lesRI_fold2, file="test2.txt")
 }else{ 
-  #si on a déjà fait les tirages, on peut juste relire les fichiers
+  #We can reuse old shuffle by use those files
   lesRIG2=read.csv(file="lesRIMoy_aleaParCol_chaqLigne.txt")
   lesRI_fold2=read.csv(file="lesRIParFold_aleaParCo_chaqLignel.txt")
 }
