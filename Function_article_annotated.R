@@ -91,7 +91,7 @@ newvect=vectcolor(ClusterVec,OrdSer1)
 
 
 
-#creation d'une matrice alternée
+#create an alternate matrix
 matalt=function(matrix_fold_spe_full,newvect){
   vecteurside=as.vector(newvect[get_order(OrdSer1)])
   couleurintercale=c("#FFFFFF","#333333","#FF3300","#3333FF")
@@ -115,7 +115,7 @@ matrixalt=matalt(matrice,newvect )
 
 
 #PCA
-#Utilisation de la pca
+#use of the pca
 data2=t(matrice)
 res.pca2=PCA(data2)
 variablepca=get_pca_var(res.pca2)
