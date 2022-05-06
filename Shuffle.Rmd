@@ -46,7 +46,7 @@ stopifnot( is.ultrametric(arbre))
 
 
 # Calculation of the seriated matrix
- Seriation using the phylogeny
+#Seriation using the phylogeny
 
 ```{r}
 d=read.table(nomFi_matrix, header = T)
@@ -82,7 +82,7 @@ datamatOrdered <- as.matrix(matrice[get_order(OrdSer1), get_order(OrdSer2)])
 
 
 # Shuffle to calculate RI
-column shuffle (species), each row is shuffle independantly
+#column shuffle (species), each row is shuffle independantly
 ```{r}
 
 resample=TRUE
