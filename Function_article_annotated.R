@@ -107,7 +107,7 @@ matalt=function(matrix_fold_spe_full,newvect){
   }
   return (matrix2)
 }
-#utilisation fonction creation matrice alterné
+#use of the function to create an alternate matrix
 matrixalt=matalt(matrice,newvect )
 
 
