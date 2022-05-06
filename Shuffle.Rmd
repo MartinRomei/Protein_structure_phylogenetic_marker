@@ -46,12 +46,12 @@ stopifnot( is.ultrametric(arbre))
 
 
 # Calculation of the seriated matrix
- Seriation avec la phylogenie
+ Seriation using the phylogeny
 
 ```{r}
 d=read.table(nomFi_matrix, header = T)
 
-#Il faut ordonner la matrice comme dendro 
+#We need to order the matrix like dendo
 matrice=matrix(data = 0, nrow=nrow(d), ncol=ncol(d), dimnames=list(rownames(d), dendro$labels))
 i=1
 for(org in dendro$labels){
@@ -60,11 +60,11 @@ for(org in dendro$labels){
  i=i+1
 }
 
-#matrice de distance, hclust et seriation, heatmap
+#distance matrix, hclust and seriation, heatmap
 dMat2 <- dist.binary(matrice, method = 7, diag = FALSE, upper = FALSE)
 TdMat2 <- dist.binary(t(as.matrix(matrice)), method = 7, diag = FALSE, upper = FALSE)
 
-#clustering hierarchique
+#hierarchical clustering
 HC2 <- hclust(dMat2, method = "mcquitty", members=NULL)
 #THC2_clust <- hclust(TdMat2, method = "mcquitty", members=NULL)
 #write.nexus(as.phylo(THC2_clust), file="clustering.nex")
@@ -82,11 +82,11 @@ datamatOrdered <- as.matrix(matrice[get_order(OrdSer1), get_order(OrdSer2)])
 
 
 # Shuffle to calculate RI
-Shuffle des colonnes (especes),  chaque ligne est shufflé indépendemment
+column shuffle (species), each row is shuffle independantly
 ```{r}
 
 resample=TRUE
-#Nombre d'iterations 
+#number of iterations
 niter=5
 
   if(resample==TRUE){
@@ -109,8 +109,8 @@ niter=5
     #verification of heatmap
   #  heatmap.2(rand_datamat,dendrogram='none',na.color="grey",  Rowv=FALSE, Colv=FALSE,trace='none', cexCol=0.1, cexRow=0.1, col=c("white", "blue"))  
     
-    #Pour utiliser la fonction RI de phangorn, il faut un objet de type particulier
-    #Pour cela j'écris les caractères (0/1) au format fasta puis les relis avec la fonction read.phyDat
+    #To use Ri function in phangorn, we need a specific object type
+    #I write a fasta file from our data with 0 and 1 and we read them with read.phydat to obtain the good type
     fi="tmp.txt"
     lesSp=colnames(rand_datamat)
     write("", file=fi, append=FALSE)
@@ -140,7 +140,7 @@ niter=5
 }
 nb_esp_parFolds=rowSums(datamatOrdered)
 #print(summary(lesRIG2$RI))
-nn=fitdistr(lesRIG2$RI, "normal") #fi de la distrib normale
+nn=fitdistr(lesRIG2$RI, "normal") #fi of the normal law distribution
 hist(lesRIG2$RI,main= paste("distribution de", niter, " RI avec shuffle des colonne (espèces)"), prob=TRUE, sub=paste("mean:", nn$estimate[1], "sd",  nn$estimate[2]))
 curve(dnorm(x, mean=nn$estimate[1], sd=nn$estimate[2]), add=TRUE)
 
